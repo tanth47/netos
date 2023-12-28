@@ -1,8 +1,6 @@
-Alo
-Alo
-?
-Một
-Hai 
-Sáu
+1
+2
+3
+4
+5
 
-anh gửi câu hỏi xem
