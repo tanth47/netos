@@ -1,6 +1,111 @@
-1
-2
-3
-4
-5
+Câu 1. (5 điểm, nộp file .sh) Trên server của bạn, cho tệp /data/usr.txt chứa danh sách người dùng có yêu cầu được cấp tài khoản trên hệ thống, mỗi người dùng trên một dòng với thông tin duy nhất là tên tài khoản cần cấp. Ví dụ tệp usr.txt có  một hoặc nhiều người dùng, nội dung như sau:
+hoangtt
+mainn
+binhqq
+Viết kịch bản shell, dùng vòng lặp FOR đọc danh sách người dùng từ tệp /data/usr.txt, và với mỗi người dùng,
+- (2 điểm) kiểm tra người dùng đã tồn tại trong hệ thống hay chưa (1 điểm), nếu chưa thì tạo người dùng với tên tài khoản tương ứng và mật khẩu là “12345678” (1 điểm)
+- (1 điểm) nếu người dùng mới được tạo thì tạo thêm thư mục /data/[user]. Thiết lập quyền trên thư mục /data/[user] là 755
+- (1 điểm) thiết lập cho những người dùng còn lại trong danh sách có quyền read, write, execute trên thư mục vừa tạo.  
+- (1 điểm) Tiếp tục kiểm tra nếu ngày tối đa phải thay đổi mật khẩu là 3000/01/01 (không cần kiểm tra xem có bị trùng lặp với ngày hết hạn tài khoản, số ngày tối thiểu, tối đa thay đổi mật khẩu ….hay không) thì in thông báo ra màn hình theo định dạng: 
+	“Ngày tối đa tên_người_dùng cần thay đổi mật khẩu là không giới hạn”
 
+Gợi ý 1: để đọc từng người dùng trong file /data/usr.txt ta dùng câu lệnh sau:
+
+  for user in $(cat /data/usr.txt)
+  do
+	#body
+  done
+Gợi ý 2: dấu ^ được sử dụng như sau: ^rufus để chỉ ra không có ký tự nào đứng trước rufus
+
+solution
+
+
+Dưới đây là mã nguồn cho kịch bản shell bạn yêu cầu. Kịch bản này đọc từng người dùng từ file /data/usr.txt, kiểm tra xem người dùng đã tồn tại hay chưa, tạo người dùng và thư mục nếu cần, cấp quyền cho thư mục, và kiểm tra ngày tối đa thay đổi mật khẩu.
+
+bash
+Copy code
+#!/bin/bash
+
+# Đọc từng dòng trong file /data/usr.txt
+for user in $(cat /data/usr.txt)
+do
+    # Kiểm tra xem người dùng có tồn tại hay không
+    if ! id "$user" &>/dev/null; then
+        # Nếu không tồn tại, tạo người dùng mới với mật khẩu 12345678
+        useradd -m -p $(openssl passwd -crypt 12345678) "$user"
+
+        # Tạo thư mục /data/[user] và cấp quyền 755
+        mkdir -p "/data/${user}"
+        chmod 755 "/data/${user}"
+    fi
+
+    # Cấp quyền read, write, execute cho người dùng khác trên thư mục này
+    chmod o+rwx "/data/${user}"
+
+    # Kiểm tra ngày tối đa thay đổi mật khẩu
+    expiry_date=$(chage -l $user | grep "Maximum number of days between password change" | cut -d: -f2)
+    if [[ $expiry_date -eq 99999 ]]; then
+        echo "Ngày tối đa $user cần thay đổi mật khẩu là không giới hạn"
+    fi
+done
+
+Để sử dụng kịch bản này, bạn cần lưu nó vào một file với đuôi .sh, ví dụ create_users.sh, và chạy nó trên server của bạn. Đảm bảo rằng bạn có quyền thực thi cần thiết để chạy các lệnh trong script này, đặc biệt là useradd, mkdir, chmod, và chage.
+
+
+Câu 2.  (5 điểm, nộp file chụp màn hình)
+Cài đặt  FTP server nếu chưa có. Thực hiện upload/download file từ server về máy cục bộ thông qua sftp (đăng nhập bằng người dùng có mật khẩu)
+
+solution
+
+Để thực hiện yêu cầu này, bạn cần thực hiện các bước sau:
+
+1. Cài đặt FTP Server:
+Bạn có thể sử dụng vsftpd hoặc ProFTPD trên Linux. Dưới đây là ví dụ cài đặt vsftpd trên Ubuntu:
+
+bash
+Copy code
+sudo apt-get update
+sudo apt-get install vsftpd
+Sau khi cài đặt, bạn cần cấu hình vsftpd. Mở tệp cấu hình:
+
+bash
+Copy code
+sudo nano /etc/vsftpd.conf
+Trong tệp cấu hình, bạn có thể chỉnh sửa hoặc thêm các dòng sau để cấu hình:
+
+anonymous_enable=NO : Tắt quyền truy cập ẩn danh.
+local_enable=YES : Cho phép người dùng hệ thống đăng nhập.
+write_enable=YES : Cho phép ghi trên server.
+chroot_local_user=YES : Giới hạn người dùng trong thư mục home của họ.
+Lưu và khởi động lại dịch vụ vsftpd:
+
+bash
+Copy code
+sudo systemctl restart vsftpd
+2. Upload/Download File Thông Qua SFTP:
+SFTP (SSH File Transfer Protocol) là một giao thức an toàn để trao đổi tệp, hoạt động trên SSH.
+
+Để upload hoặc download file, bạn sử dụng một client SFTP. Trên Linux, bạn có thể sử dụng lệnh sftp từ terminal.
+
+Đăng Nhập SFTP:
+bash
+Copy code
+sftp username@your_server_ip
+Nhập mật khẩu khi được yêu cầu.
+
+Upload File:
+Để upload một file từ máy cục bộ lên server:
+
+bash
+Copy code
+put /path/to/local/file /path/to/remote/directory
+Download File:
+Để download một file từ server về máy cục bộ:
+
+bash
+Copy code
+get /path/to/remote/file /path/to/local/directory
+Chụp Màn Hình:
+Sau khi thực hiện các lệnh trên, bạn có thể chụp màn hình terminal để chứng minh bạn đã thực hiện các bước này thành công.
+
+Đảm bảo bạn có quyền truy cập cần thiết trên máy chủ và máy cục bộ của bạn để thực hiện các lệnh này. Thay thế username, your_server_ip, và đường dẫn tới các tệp cần thiết trong các lệnh trên với thông tin cụ thể của bạn.
