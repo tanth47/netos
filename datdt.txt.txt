@@ -1,0 +1,34 @@
+
+ĐỀ THI KẾT THÚC HỌC PHẦN
+THỰC HÀNH HỆ ĐIỀU HÀNH MẠNG
+Thời gian làm bài: 90 phút
+(Đề số 1)
+
+Ghi chú: 
+-	Sinh viên được phép mang tài liệu in
+-	Sinh viên được mở một tab duy nhất trên trình duyệt là courses, và một file doc để làm bài, cửa sổ ubuntu, cửa sổ phụ để tương tác với Ubuntu
+-	Sinh viên nộp 2 file trên courses: file .sh cho câu 1 và file pdf hoặc docx  cho câu 2.
+-	Thời gian nộp bài lên courses: 5 phút.
+
+Câu 1. (5 điểm, nộp file .sh) Trên server của bạn, cho tệp /data/usr.txt chứa danh sách người dùng có yêu cầu được cấp tài khoản trên hệ thống, mỗi người dùng trên một dòng với thông tin duy nhất là tên tài khoản cần cấp. Ví dụ tệp usr.txt có  một hoặc nhiều người dùng, nội dung như sau:
+hoangtt
+mainn
+binhqq
+Viết kịch bản shell, dùng vòng lặp FOR đọc danh sách người dùng từ tệp /data/usr.txt, và với mỗi người dùng,
+- (2 điểm) kiểm tra người dùng đã tồn tại trong hệ thống hay chưa (1 điểm), nếu chưa thì tạo người dùng với tên tài khoản tương ứng và mật khẩu là “12345678” (1 điểm)
+- (1 điểm) nếu người dùng mới được tạo thì tạo thêm thư mục /data/[user]. Thiết lập quyền trên thư mục /data/[user] là 755
+- (1 điểm) thiết lập cho những người dùng còn lại trong danh sách có quyền read, write, execute trên thư mục vừa tạo.  
+- (1 điểm) Tiếp tục kiểm tra nếu ngày tối đa phải thay đổi mật khẩu là 3000/01/01 (không cần kiểm tra xem có bị trùng lặp với ngày hết hạn tài khoản, số ngày tối thiểu, tối đa thay đổi mật khẩu ….hay không) thì in thông báo ra màn hình theo định dạng: 
+	“Ngày tối đa tên_người_dùng cần thay đổi mật khẩu là không giới hạn”
+
+Gợi ý 1: để đọc từng người dùng trong file /data/usr.txt ta dùng câu lệnh sau:
+
+  for user in $(cat /data/usr.txt)
+  do
+	#body
+  done
+Gợi ý 2: dấu ^ được sử dụng như sau: ^rufus để chỉ ra không có ký tự nào đứng trước rufus
+
+Câu 2.  (5 điểm, nộp file chụp màn hình)
+Cài đặt  FTP server nếu chưa có. Thực hiện upload/download file từ server về máy cục bộ thông qua sftp (đăng nhập bằng người dùng có mật khẩu)
+
