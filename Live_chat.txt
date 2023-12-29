@@ -42,3 +42,38 @@ do
 
 
 passwd: Unknown option: -crypt, I'm using wsl2, not Linux
+
+
+
+Trong môi trường WSL2 (Windows Subsystem for Linux), lỗi "passwd: Unknown option: -crypt" xuất hiện do sự khác biệt trong việc hỗ trợ các tùy chọn của lệnh passwd. Thay vì sử dụng openssl passwd -crypt, bạn có thể sử dụng cách tiếp cận khác để tạo mật khẩu.
+
+Một cách đơn giản để đặt mật khẩu cho người dùng trong kịch bản shell là sử dụng lệnh echo kết hợp với passwd. Tuy nhiên, cần lưu ý rằng cách này không an toàn như việc mã hóa mật khẩu, và nên chỉ sử dụng cho mục đích thử nghiệm hoặc trong môi trường an toàn.
+
+Đây là cách sửa đổi phần tạo người dùng trong kịch bản của bạn:
+
+bash
+Copy code
+#!/bin/bash
+
+# Đọc từng dòng trong file /data/usr.txt
+for user in $(cat /data/usr.txt)
+do
+    # Kiểm tra xem người dùng có tồn tại hay không
+    if ! id "$user" &>/dev/null; then
+        # Nếu không tồn tại, tạo người dùng mới
+        useradd "$user"
+
+        # Đặt mật khẩu cho người dùng
+        echo "${user}:12345678" | chpasswd
+
+        # Tạo thư mục /data/[user] và cấp quyền 755
+        mkdir -p "/data/${user}"
+        chmod 755 "/data/${user}"
+    fi
+
+    # Cấp quyền read, write, execute cho người dùng khác trên thư mục này
+    chmod o+rwx "/data/${user}"
+
+    # [Phần còn lại của kịch bản]
+done
+Trong đoạn mã này, lệnh echo "${user}:12345678" | chpasswd sẽ đặt mật khẩu cho người dùng mới là 12345678. Lưu ý rằng việc sử dụng mật khẩu cứng như vậy không an toàn và chỉ nên áp dụng trong môi trường kiểm thử hoặc nội bộ.
