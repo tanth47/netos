@@ -1,2 +1,41 @@
 có 1 đề thôi đáp án trong test.txt
 Tại sao ngày tối đa phải thay đổi mật khẩu là 3000/01/01 lại tương đương với expiry_date = 99999
+
+
+Điều bạn nhắc đến về ngày tối đa phải thay đổi mật khẩu là 3000/01/01 và giá trị 99999 là một hiểu lầm phổ biến. Trong hệ thống Linux, 99999 là giá trị mặc định được sử dụng để biểu thị rằng không có hạn chót cho việc thay đổi mật khẩu, nghĩa là nó không bao giờ hết hạn. Điều này không cụ thể liên quan đến một ngày nhất định như 3000/01/01.
+
+Để kiểm tra ngày hết hạn mật khẩu cụ thể (ví dụ: 3000/01/01), bạn cần phải tính toán số ngày từ ngày hiện tại đến ngày đó và so sánh nó với giá trị trả về từ lệnh chage. Tuy nhiên, chage không cung cấp thông tin trực tiếp về ngày hết hạn cụ thể trong định dạng ngày-tháng-năm; nó chỉ cung cấp số ngày tối đa giữa các lần thay đổi mật khẩu.
+
+Dưới đây là một cách tiếp cận để kiểm tra xem ngày tối đa thay đổi mật khẩu có phải là 3000/01/01 hay không:
+
+Tính toán số ngày từ ngày hiện tại đến 3000/01/01.
+So sánh số này với giá trị trả về từ chage.
+Đây là một đoạn mã ví dụ cho việc này:
+
+bash
+Copy code
+#!/bin/bash
+
+target_date="3000-01-01"
+
+# Chuyển đổi ngày đích thành số giây kể từ epoch (1970-01-01)
+target_epoch=$(date -d "$target_date" +%s)
+
+# Lấy ngày hiện tại dưới dạng số giây kể từ epoch
+current_epoch=$(date +%s)
+
+# Tính toán số ngày từ ngày hiện tại đến ngày đích
+days_until_target=$(( (target_epoch - current_epoch) / 86400 ))
+
+# Đọc từng người dùng từ file /data/usr.txt
+for user in $(cat /data/usr.txt)
+do
+    # Lấy thông tin về ngày tối đa thay đổi mật khẩu
+    max_days=$(chage -l $user | grep "Maximum number of days between password change" | cut -d: -f2)
+
+    # So sánh với ngày đích
+    if [[ "$max_days" -eq "$days_until_target" ]]; then
+        echo "Ngày tối đa $user cần thay đổi mật khẩu là 3000/01/01"
+    fi
+done
+Lưu ý rằng việc này chỉ hoạt động nếu hệ thống của bạn hỗ trợ việc xử lý ngày tháng cho đến năm 3000, điều này không phải lúc nào cũng được đảm bảo.
