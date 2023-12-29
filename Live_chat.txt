@@ -33,9 +33,12 @@ do
     # Lấy thông tin về ngày tối đa thay đổi mật khẩu
     max_days=$(chage -l $user | grep "Maximum number of days between password change" | cut -d: -f2)
 
-    # So sánh với ngày đích
-    if [[ "$max_days" -eq "$days_until_target" ]]; then
-        echo "Ngày tối đa $user cần thay đổi mật khẩu là 3000/01/01"
-    fi
-done
-Lưu ý rằng việc này chỉ hoạt động nếu hệ thống của bạn hỗ trợ việc xử lý ngày tháng cho đến năm 3000, điều này không phải lúc nào cũng được đảm bảo.
+
+
+
+
+
+
+
+
+passwd: Unknown option: -crypt, I'm using wsl2, not Linux
